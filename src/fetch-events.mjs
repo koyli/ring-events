@@ -14,7 +14,7 @@ import * as path from 'path'
 const DATA_DIR = process.env.DATA_DIR ?? '/data'
 const TOKEN_PATH = path.join(DATA_DIR, '.ring-token')
 
-// How far back to go when a camera has nothing stored yet.
+// Events older than this are never stored (this is also how far the first run goes back).
 const BACKFILL_DAYS = Number(process.env.BACKFILL_DAYS ?? 7)
 // Keep re-checking recent events this long, so late-arriving clips get picked up.
 const RECHECK_HOURS = Number(process.env.RECHECK_HOURS ?? 24)
@@ -94,7 +94,8 @@ const storeEvent = async (camera, cameraSlug, ev) => {
 const syncCamera = async (camera) => {
   const cameraSlug = slug(camera.name)
   const hasHistory = existsSync(path.join(DATA_DIR, cameraSlug))
-  const cutoff = Date.now() - (hasHistory ? RECHECK_HOURS * 3.6e6 : BACKFILL_DAYS * 864e5)
+  const oldest = Date.now() - BACKFILL_DAYS * 864e5
+  const recheckFrom = Date.now() - RECHECK_HOURS * 3.6e6
 
   let paginationKey
   let seen = 0
@@ -102,12 +103,18 @@ const syncCamera = async (camera) => {
     const { events, meta } = await camera.getEvents({ limit: PAGE_SIZE, ...(paginationKey && { pagination_key: paginationKey }) })
     if (!events?.length) break
 
+    // Events come newest first.
     let reachedOld = false
     for (const ev of events) {
+      const createdAt = new Date(ev.created_at).getTime()
+      if (createdAt < oldest) {
+        reachedOld = true
+        break
+      }
       seen++
       const settled = await storeEvent(camera, cameraSlug, ev)
       // Once we're past the recheck window and hitting events we already have, we're caught up.
-      if (new Date(ev.created_at).getTime() < cutoff && (settled || !hasHistory)) reachedOld = true
+      if (hasHistory && settled && createdAt < recheckFrom) reachedOld = true
     }
     if (reachedOld || !meta?.pagination_key || meta.pagination_key === paginationKey) break
     paginationKey = meta.pagination_key

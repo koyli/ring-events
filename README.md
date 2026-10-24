@@ -36,4 +36,4 @@ The next scheduled run picks it up. Ring rotates the token on each use and the c
 - Run now: `docker-compose exec -u ring ring-events fetch.sh`
 - Update: `git pull && docker-compose up -d --build`
 
-Settings (in `.env`): `CRON_SCHEDULE` (default `*/5 * * * *`), `BACKFILL_DAYS` (how far back the first run goes, default 7), `RECHECK_HOURS` (how long to retry clips that aren't ready, default 24), `DATA_PATH` (host folder, default `./data`).
+Settings (in `.env`): `CRON_SCHEDULE` (default `*/5 * * * *`), `BACKFILL_DAYS` (events older than this are ignored; also how far back the first run goes, default 7), `RECHECK_HOURS` (how long to retry clips that aren't ready, default 24), `DATA_PATH` (host folder, default `./data`).
