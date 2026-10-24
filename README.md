@@ -1,6 +1,6 @@
 # ring-events
 
-A container that archives Ring camera events. On a cron schedule (every 5 minutes by default) it pulls new events from every camera on the account and saves:
+A container that archives Ring camera events. On a cron schedule (every 5 minutes by default) it pulls new motion and doorbell (ding) events from every camera on the account and saves:
 
     data/<camera>/<YYYY-MM-DD>/<HHMMSS>-<kind>-<ding_id>.json   event metadata (times are UTC)
     data/<camera>/<YYYY-MM-DD>/<HHMMSS>-<kind>-<ding_id>.mp4    the clip (needs Ring Protect)
@@ -38,4 +38,4 @@ The next scheduled run picks it up. Ring rotates the token on each use and the c
 - Run now: `docker-compose exec -u ring ring-events fetch.sh`
 - Update: `git pull && docker-compose up -d --build`
 
-Settings (in `.env`): `CRON_SCHEDULE` (default `*/5 * * * *`), `BACKFILL_DAYS` (events older than this are ignored; also how far back the first run goes, default 7), `RECHECK_HOURS` (how long to retry clips that aren't ready, default 24), `DATA_PATH` (archive folder, default `./data`), `CONFIG_PATH` (token folder, default `./config`).
+Settings (in `.env`): `CRON_SCHEDULE` (default `*/5 * * * *`), `BACKFILL_DAYS` (events older than this are ignored; also how far back the first run goes, default 7), `RECHECK_HOURS` (how long to retry clips that aren't ready, default 24), `DATA_PATH` (archive folder, default `./data`), `CONFIG_PATH` (token folder, default `./config`), `EVENT_KINDS` (comma-separated Ring event kinds to keep, default `motion,ding`; others include `on_demand`, `on_demand_link`, `alarm`).

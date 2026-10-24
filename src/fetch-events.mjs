@@ -19,6 +19,8 @@ const TOKEN_PATH = process.env.TOKEN_PATH ?? '/config/ring-token'
 const BACKFILL_DAYS = Number(process.env.BACKFILL_DAYS ?? 7)
 // Keep re-checking recent events this long, so late-arriving clips get picked up.
 const RECHECK_HOURS = Number(process.env.RECHECK_HOURS ?? 24)
+// Only these event kinds are stored; others (live views, alarms, ...) are skipped.
+const EVENT_KINDS = new Set((process.env.EVENT_KINDS ?? 'motion,ding').split(',').map((k) => k.trim()).filter(Boolean))
 const MAX_VIDEO_ATTEMPTS = 12
 const PAGE_SIZE = 50
 
@@ -115,6 +117,7 @@ const syncCamera = async (camera) => {
         reachedOld = true
         break
       }
+      if (!EVENT_KINDS.has(ev.kind)) continue
       seen++
       const settled = await storeEvent(camera, cameraSlug, ev)
       // Once we're past the recheck window and hitting events we already have, we're caught up.
