@@ -1,0 +1,13 @@
+{
+  "name": "ring-events",
+  "version": "1.0.0",
+  "description": "Archive Ring camera events and clips on a cron schedule",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "fetch": "node src/fetch-events.mjs"
+  },
+  "dependencies": {
+    "ring-client-api": "^14.3.0"
+  }
+}

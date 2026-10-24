@@ -1,0 +1,16 @@
+services:
+  ring-events:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    image: ring-events
+    container_name: ring-events
+    restart: unless-stopped
+    volumes:
+      - ${DATA_PATH:-./data}:/data
+    environment:
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-*/5 * * * *}
+      - BACKFILL_DAYS=${BACKFILL_DAYS:-7}
+      - RECHECK_HOURS=${RECHECK_HOURS:-24}
