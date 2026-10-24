@@ -16,6 +16,8 @@ Built on [ring-client-api](https://github.com/dgreif/ring).
        git clone https://github.com/koyli/ring-events && cd ring-events
        printf 'UID=%s\nGID=%s\n' "$(id -u)" "$(id -g)" > .env
 
+   Optionally set `DATA_PATH` (where events go) and `CONFIG_PATH` (where the Ring token goes) in `.env`. Keep `CONFIG_PATH` outside `DATA_PATH` so anything that reads the archive can't see your Ring login.
+
 2. Build and start:
 
        docker-compose up -d --build
@@ -26,7 +28,7 @@ Built on [ring-client-api](https://github.com/dgreif/ring).
 
 4. Save the token it prints, without leaving it in shell history:
 
-       read -rs T && printf %s "$T" > data/.ring-token && chmod 600 data/.ring-token; unset T
+       read -rs T && printf %s "$T" > config/ring-token && chmod 600 config/ring-token; unset T
 
 The next scheduled run picks it up. Ring rotates the token on each use and the container saves the new one, so don't share it with other Ring tools.
 
@@ -36,4 +38,4 @@ The next scheduled run picks it up. Ring rotates the token on each use and the c
 - Run now: `docker-compose exec -u ring ring-events fetch.sh`
 - Update: `git pull && docker-compose up -d --build`
 
-Settings (in `.env`): `CRON_SCHEDULE` (default `*/5 * * * *`), `BACKFILL_DAYS` (events older than this are ignored; also how far back the first run goes, default 7), `RECHECK_HOURS` (how long to retry clips that aren't ready, default 24), `DATA_PATH` (host folder, default `./data`).
+Settings (in `.env`): `CRON_SCHEDULE` (default `*/5 * * * *`), `BACKFILL_DAYS` (events older than this are ignored; also how far back the first run goes, default 7), `RECHECK_HOURS` (how long to retry clips that aren't ready, default 24), `DATA_PATH` (archive folder, default `./data`), `CONFIG_PATH` (token folder, default `./config`).

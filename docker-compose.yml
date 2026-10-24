@@ -10,6 +10,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${DATA_PATH:-./data}:/data
+      - ${CONFIG_PATH:-./config}:/config
     environment:
       - CRON_SCHEDULE=${CRON_SCHEDULE:-*/5 * * * *}
       - BACKFILL_DAYS=${BACKFILL_DAYS:-7}

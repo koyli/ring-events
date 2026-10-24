@@ -12,7 +12,8 @@ import { pipeline } from 'stream/promises'
 import * as path from 'path'
 
 const DATA_DIR = process.env.DATA_DIR ?? '/data'
-const TOKEN_PATH = path.join(DATA_DIR, '.ring-token')
+// Kept outside DATA_DIR so tools that read the archive never see the Ring login.
+const TOKEN_PATH = process.env.TOKEN_PATH ?? '/config/ring-token'
 
 // Events older than this are never stored (this is also how far the first run goes back).
 const BACKFILL_DAYS = Number(process.env.BACKFILL_DAYS ?? 7)

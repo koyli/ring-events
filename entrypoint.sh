@@ -5,11 +5,12 @@ set -e
 user=ring
 log=$DATA_DIR/fetch.log
 chown "$user:$user" "$DATA_DIR"
+chown "$user:$user" "$(dirname "$TOKEN_PATH")" && chmod 700 "$(dirname "$TOKEN_PATH")"
 su "$user" -s /bin/sh -c "touch $log"
 
 # crond doesn't pass the container's environment to jobs, so put it on the line.
 # Overwrite rather than append so a container restart doesn't duplicate the entry.
-env="PATH=$PATH DATA_DIR=$DATA_DIR BACKFILL_DAYS=${BACKFILL_DAYS:-7} RECHECK_HOURS=${RECHECK_HOURS:-24}"
+env="PATH=$PATH DATA_DIR=$DATA_DIR TOKEN_PATH=$TOKEN_PATH BACKFILL_DAYS=${BACKFILL_DAYS:-7} RECHECK_HOURS=${RECHECK_HOURS:-24}"
 mkdir -p /etc/crontabs
 echo "$CRON_SCHEDULE env $env /usr/local/bin/fetch.sh" > "/etc/crontabs/$user"
 rm -f /etc/crontabs/root
