@@ -71,7 +71,10 @@ const storeEvent = async (camera, cameraSlug, ev) => {
   if (ev.recording_status === 'ready') {
     record.video.attempts++
     try {
-      const url = await camera.getRecordingUrl(ev.ding_id_str, { transcoded: false })
+      // The original upload isn't always shareable; Ring's transcoded copy usually is.
+      const url = (await camera.getRecordingUrl(ev.ding_id_str, { transcoded: false }))
+        ?? (await camera.getRecordingUrl(ev.ding_id_str, { transcoded: true }))
+      if (!url) throw new Error('Ring returned no recording URL')
       await download(url, mp4Path)
       record.video = { status: 'stored', file: path.basename(mp4Path), attempts: record.video.attempts }
       log(`  saved clip ${path.relative(DATA_DIR, mp4Path)}`)
